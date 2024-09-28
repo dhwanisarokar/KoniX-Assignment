@@ -4,14 +4,15 @@ const {
   getAssetWiseBalance,
 } = require("../service/trade.service.js");
 const catachAsync = require("../utils/catchAsync.js");
-const ApiError = require("../utils/ApiError.js");
 
 const uploadCSV = catachAsync(async function (req, res) {
-  const path = req.file?.path;
-
-  if (!path) {
-    res.status(httpStatus.NOT_FOUND).send("CSV file is required");
+  if (!req.file) {
+    return res
+      .status(400)
+      .json({ message: "No file uploaded. Please upload a CSV file." });
   }
+
+  const path = req.file?.path;
   readCSVFile(path);
 
   res
@@ -21,7 +22,9 @@ const uploadCSV = catachAsync(async function (req, res) {
 
 const getBalance = catachAsync(async (req, res) => {
   const { timestamp } = req.query;
-   
+  if (!timestamp) {
+    return res.status(400).json({ message: "timestamp is required" });
+  }
   const balance = await getAssetWiseBalance(timestamp);
 
   res.status(httpStatus.OK).send(balance);
