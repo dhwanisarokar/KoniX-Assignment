@@ -15,12 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/api/trades", router);
 
-// Error Middleware
-app.use(errorHandler);
-
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, "Not found"));
 });
+
+// golab Error Middleware
+app.use(errorHandler);
+
 
 module.exports = app;
