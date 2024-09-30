@@ -11,8 +11,6 @@ const errorHandler = (err, req, res, next) => {
     message,
   };
 
-  console.error(err);
-
   res.status(statusCode).send(response);
 };
 
