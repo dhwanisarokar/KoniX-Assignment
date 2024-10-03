@@ -2,9 +2,11 @@ const csv = require("csv-parser");
 const fs = require("fs");
 const path = require("path");
 const Trade = require("../models/trade.model.js");
+const ApiError = require("../utils/ApiError.js");
+const httpStatus = require("http-status");
 
-const readCSVFile = (reqPath) => {
-  const filePath = path.join(__dirname, "../../", reqPath);
+const readCSVFile = (filePath) => {
+  
   const fileRows = [];
   fs.createReadStream(filePath)
     .pipe(csv())
@@ -20,15 +22,26 @@ const readCSVFile = (reqPath) => {
       });
     })
     .on("end", async () => {
-      await Trade.insertMany(fileRows);
-      fs.unlinkSync(filePath); // Clean up the uploaded file
+      try {
+        await Trade.insertMany(fileRows);
+        fs.unlinkSync(filePath); // Clean up the uploaded file
+      } catch (error) {
+        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to store data in DB")
+      }
     });
 };
 
 const getAssetWiseBalance = async (timestamp) => {
-  const trades = await Trade.find({
-    utcTime: { $lte: new Date(timestamp) },
-  });
+  try {
+    const trades = await Trade.find({
+      utcTime: { $lte: new Date(timestamp) },
+    });
+    if(!trades) {
+      throw new ApiError(httpStatus.NOT_FOUND, "No trades found for this timestamp.")
+    }
+  } catch (error) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch trades.")
+  }
 
   const balance = trades.reduce((acc, trade) => {
     const sign = trade.operation.toLowerCase() === 'buy' ? 1 : -1;  // 'buy' adds, 'sell' subtracts

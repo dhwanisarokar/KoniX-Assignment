@@ -2,12 +2,12 @@ const config = require("../config/config");
 
 // Send response on errors
 const errorHandler = (err, req, res, next) => {
-  let { statusCode, message } = err;
-
-  res.locals.errorMessage = err.message;
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
 
   const response = {
-    code: statusCode,
+    status: 'error',
+    statusCode,
     message,
   };
 

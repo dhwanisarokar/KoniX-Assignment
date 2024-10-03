@@ -13,7 +13,8 @@ const uploadCSV = catachAsync(async function (req, res) {
   }
 
   const path = req.file?.path;
-  readCSVFile(path);
+  const filePath = path.join(__dirname, "../../", path);
+  readCSVFile(filePath);
 
   res
     .status(httpStatus.CREATED)
