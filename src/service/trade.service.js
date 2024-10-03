@@ -1,12 +1,11 @@
 const csv = require("csv-parser");
 const fs = require("fs");
-const path = require("path");
-const Trade = require("../models/trade.model.js");
-const ApiError = require("../utils/ApiError.js");
 const httpStatus = require("http-status");
 
+const Trade = require("../models/trade.model.js");
+const ApiError = require("../utils/ApiError.js");
+
 const readCSVFile = (filePath) => {
-  
   const fileRows = [];
   fs.createReadStream(filePath)
     .pipe(csv())

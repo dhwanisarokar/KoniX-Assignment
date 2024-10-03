@@ -1,4 +1,6 @@
 const httpStatus = require("http-status");
+const path = require("path");
+
 const {
   readCSVFile,
   getAssetWiseBalance,
@@ -12,8 +14,7 @@ const uploadCSV = catachAsync(async function (req, res) {
       .json({ message: "No file uploaded. Please upload a CSV file." });
   }
 
-  const path = req.file?.path;
-  const filePath = path.join(__dirname, "../../", path);
+  const filePath = path.join(__dirname, "../../", req.file?.path);
   readCSVFile(filePath);
 
   res
