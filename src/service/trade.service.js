@@ -25,7 +25,10 @@ const readCSVFile = (filePath) => {
         await Trade.insertMany(fileRows);
         fs.unlinkSync(filePath); // Clean up the uploaded file
       } catch (error) {
-        throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to store data in DB")
+        throw new ApiError(
+          httpStatus.INTERNAL_SERVER_ERROR,
+          "Failed to store data in DB"
+        );
       }
     });
 };
@@ -35,21 +38,27 @@ const getAssetWiseBalance = async (timestamp) => {
     const trades = await Trade.find({
       utcTime: { $lte: new Date(timestamp) },
     });
-    if(!trades) {
-      throw new ApiError(httpStatus.NOT_FOUND, "No trades found for this timestamp.")
+    if (!trades) {
+      throw new ApiError(
+        httpStatus.NOT_FOUND,
+        "No trades found for this timestamp."
+      );
     }
+
+    const balance = trades.reduce((acc, trade) => {
+      const sign = trade.operation.toLowerCase() === "buy" ? 1 : -1; // 'buy' adds, 'sell' subtracts
+      if (!acc[trade.baseCoin]) acc[trade.baseCoin] = 0;
+      acc[trade.baseCoin] += sign * trade.amount; // Add/subtract based on the operation type
+      return acc;
+    }, {});
+
+    return balance;
   } catch (error) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to fetch trades.")
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      "Failed to fetch trades."
+    );
   }
-
-  const balance = trades.reduce((acc, trade) => {
-    const sign = trade.operation.toLowerCase() === 'buy' ? 1 : -1;  // 'buy' adds, 'sell' subtracts
-    if (!acc[trade.baseCoin]) acc[trade.baseCoin] = 0;
-    acc[trade.baseCoin] += sign * trade.amount;  // Add/subtract based on the operation type
-    return acc;
-  }, {});
-
-  return balance;
 };
 
 module.exports = {
