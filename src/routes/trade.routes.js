@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { uploadCSV, getBalance } = require("../controllers/trade.controllers.js");
-const { upload } = require("../middlewares/multer.middleware.js");
+const upload = require("../middlewares/multer.middleware.js");
 
 const router = express.Router();
 
